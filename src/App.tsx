@@ -10,14 +10,14 @@ function App() {
   const image = useEditorStore((state) => state.image);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-100 p-8 bg-gray-800 flex items-center justify-center">
+      <div className="max-w-6xl mx-auto flex items-center justify-center flex-col">
         <div className="flex items-center mb-8">
           <Image className="h-8 w-8 text-blue-500 mr-2" />
-          <h1 className="text-3xl font-bold text-gray-900">AI Image Editor</h1>
+          <h1 className="text-3xl font-bold text-amber-50">AI Image Editor</h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="flex items-center justify-center">
           <div className="lg:col-span-3 space-y-8">
             {!image ? (
               <ImageUploader />
