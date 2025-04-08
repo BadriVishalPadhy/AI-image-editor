@@ -159,7 +159,7 @@ export const ImageEditor: React.FC = () => {
         return processed.mul(255).cast('int32');
       });
 
-      const processedData = await tf.browser.toPixels(tensor);
+      const processedData = await tf.browser.toPixels(tensor as tf.Tensor3D);
       const processedImageData = new ImageData(
         processedData,
         width,
