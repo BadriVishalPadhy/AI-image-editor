@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useEditorStore } from '../store/editorStore';
 import * as tf from '@tensorflow/tfjs';
 import * as bodyPix from '@tensorflow-models/body-pix';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Download } from 'lucide-react';
 
 export const ImageEditor: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState<bodyPix.BodyPix | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>('edited-image.png');
   
   const {
     image,
@@ -46,6 +47,15 @@ export const ImageEditor: React.FC = () => {
     };
     loadModel();
   }, []);
+
+  // Set a default file name based on original image when it changes
+  useEffect(() => {
+    if (image) {
+      // Extract file name from the image URL or path if possible
+      const defaultName = image.split('/').pop()?.split('.')[0] || 'image';
+      setFileName(`${defaultName}-edited.png`);
+    }
+  }, [image]);
 
   // Process image effect
   const processImage = async (
@@ -210,6 +220,28 @@ export const ImageEditor: React.FC = () => {
     model
   ]);
 
+  const handleDownload = () => {
+    if (!canvasRef.current) return;
+    
+    try {
+      // Get the canvas data as a data URL (PNG format by default)
+      const dataUrl = canvasRef.current.toDataURL('image/png');
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = fileName;
+      
+      // Append to the document, click it, and remove it
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      setError('Failed to download image. Please try again.');
+      console.error('Error downloading image:', err);
+    }
+  };
+
   if (!image) return null;
 
   return (
@@ -224,6 +256,25 @@ export const ImageEditor: React.FC = () => {
           {error && <p className="text-white text-center px-4">{error}</p>}
         </div>
       )}
+      
+      {/* Download Button */}
+      <div className="mt-4 flex items-center justify-between">
+        <input
+          type="text"
+          value={fileName}
+          onChange={(e) => setFileName(e.target.value)}
+          className="flex-1 mr-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="File name"
+        />
+        <button
+          onClick={handleDownload}
+          disabled={loading || !image}
+          className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download className="w-5 h-5 mr-2" />
+          Download
+        </button>
+      </div>
     </div>
   );
 };
